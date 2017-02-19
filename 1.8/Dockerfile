@@ -1,14 +1,12 @@
 FROM aarch64/debian:jessie-slim
 
-ARG GOLANG_VERSION=1.7.5
-ARG GOLANG_SRC_SHA256=4e834513a2079f8cbbd357502cccaac9507fd00a1efe672375798858ff291815
+ARG GOLANG_VERSION
+ARG GOLANG_SRC_SHA256
 
 ENV GOLANG_SRC_URL https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz
 
 # https://golang.org/issue/14851
 COPY no-pic.patch /
-# https://golang.org/issue/17847
-COPY 17847.patch /
 
 RUN set -ex \
 	&& echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list \
@@ -24,7 +22,6 @@ RUN set -ex \
 	&& rm golang.tar.gz \
 	&& cd /usr/local/go/src \
         && patch -p2 -i /no-pic.patch \
-        && patch -p2 -i /17847.patch \
 	&& export GOROOT_BOOTSTRAP="$(/usr/lib/go-1.7/bin/go env GOROOT)" \ 
 	&& ./make.bash \
 	&& rm -rf /*.patch \

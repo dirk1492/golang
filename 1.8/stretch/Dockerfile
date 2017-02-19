@@ -1,19 +1,17 @@
 FROM aarch64/debian:jessie-slim
 
-ARG GOLANG_VERSION=1.7.5
-ARG GOLANG_SRC_SHA256=4e834513a2079f8cbbd357502cccaac9507fd00a1efe672375798858ff291815
+ARG GOLANG_VERSION
+ARG GOLANG_SRC_SHA256
 
 ENV GOLANG_SRC_URL https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz
 
 # https://golang.org/issue/14851
 COPY no-pic.patch /
-# https://golang.org/issue/17847
-COPY 17847.patch /
 
 RUN set -ex \
 	&& echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list \
 	&& apt-get update \
-	&& apt-get install -y --no-install-recommends --no-install-suggests wget bash gcc openssl golang-1.7 ca-certificates patch libc-dev \
+	&& apt-get install -y --no-install-recommends --no-install-suggests wget bzr git mercurial openssh-client subversion procps curl bash gcc make pkg-config libc6-dev g++ openssl golang-1.7 ca-certificates patch libc-dev \
 	&& export PATH=/usr/lib/go-1.7/bin:$PATH \
 	&& export GOROOT_BOOTSTRAP="$(/usr/lib/go-1.7/bin/go env GOROOT)" \
 	&& echo "${GOLANG_SRC_URL}" \
@@ -24,11 +22,10 @@ RUN set -ex \
 	&& rm golang.tar.gz \
 	&& cd /usr/local/go/src \
         && patch -p2 -i /no-pic.patch \
-        && patch -p2 -i /17847.patch \
 	&& export GOROOT_BOOTSTRAP="$(/usr/lib/go-1.7/bin/go env GOROOT)" \ 
 	&& ./make.bash \
 	&& rm -rf /*.patch \
-	&& echo "Yes, do as I say!" | apt-get purge -y --force-yes  wget bash gcc openssl golang-1.7 patch libc-dev\
+	&& echo "Yes, do as I say!" | apt-get purge -y --force-yes openssl golang-1.7 patch \
 	&& apt-get autoremove -y
 
 

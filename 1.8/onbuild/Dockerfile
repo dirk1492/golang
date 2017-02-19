@@ -1,4 +1,4 @@
-FROM dil001/golang-arm64:1.6
+FROM dil001/golang-arm64:1.8
 
 RUN mkdir -p /go/src/app
 WORKDIR /go/src/app
